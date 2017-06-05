@@ -39,7 +39,9 @@ class DHT {
     constructor(port = 6881, address) {
         //生成udp监听器
         this.udp = dgram.createSocket('udp4')
+        //监听端口
         this.port = port
+        //节点中的路由表，保存已知的好节点
         this.Rtable = new Rtable()
     }
     start() {
