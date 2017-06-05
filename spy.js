@@ -30,22 +30,22 @@ axios.get('http://www.pixiv.net/member_illust.php?id=529590')
                     result1.push($(value).attr('src'))
                 })
                 
-                http.get(result1[0], function (res) {
-                    var imgData = ''
-                    res.setEncoding("binary");
-                    res.on("data", function (chunk) {
-                        imgData += chunk;
-                    });
+                // http.get(result1[0], function (res) {
+                //     var imgData = ''
+                //     res.setEncoding("binary");
+                //     res.on("data", function (chunk) {
+                //         imgData += chunk;
+                //     });
 
-                    res.on("end", function () {
-                        fs.writeFile("1.png", imgData, "binary", function (err) {
-                            if (err) {
-                                console.log("down fail");
-                            }
-                            console.log("down success");
-                        });
-                    });
-                })
+                //     res.on("end", function () {
+                //         fs.writeFile("1.png", imgData, "binary", function (err) {
+                //             if (err) {
+                //                 console.log("down fail");
+                //             }
+                //             console.log("down success");
+                //         });
+                //     });
+                // })
             })
 
     })
