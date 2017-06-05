@@ -19,16 +19,34 @@ const BOOSTRAP_NODE = [{
 
 
 const nodeID = crypto.createHash('sha1').update((Math.random() * 100000).toString()).digest('hex')
-console.log(nodeID)
+
+/**
+ * @description 
+ * Routing Table 用来存放node信息
+ * @class Rtable
+ */
+class Rtable {
+    constructor() {
+        this.nid = randomId()
+    }
+    isEmpty() {
+        return true
+    }
+}
+
 
 class DHT {
-    constructor(port, address) {
+    constructor(port = 6881, address) {
         //生成udp监听器
         this.udp = dgram.createSocket('udp4')
+        this.port = port
         this.Rtable = new Rtable()
     }
     start() {
-
+        if (this.Rtable.isEmpty()) {
+            this.listen()
+            this.joinDHT()
+        }
     }
     /**
      * @description 
@@ -39,12 +57,34 @@ class DHT {
      * @memberof DHT
      */
     joinDHT() {
-        this.BOOSTRAP_NODE.forEach(node => {
-            this.findNode(node.port, node.address)
+        BOOSTRAP_NODE.forEach(node => {
+            this.findNode(node)
         })
     }
-    findNode(query) {
-
+    /**
+     * @description 
+     * 查找节点
+     * 
+     * @memberof DHT
+     */
+    findNode(node, id = randomId()) {
+        // const ID = 
+        const message = {
+            t: randomId().slice(0, 4),
+            y: 'q',
+            q: 'find_node',
+            a: {
+                id,
+                target: randomId()
+            }
+        }
+        this.send(message, node)
+    }
+    send(msg, node) {
+        const data = bencode.encode(msg)
+        this.udp.send(data, 0, data.length, node.port, node.address, (err, b) => {
+            console.log(err, b)
+        })
     }
     ping(response) {
 
@@ -63,8 +103,8 @@ class DHT {
         })
         //监听端口获取的信息
         this.udp.on('message', (msg, info) => {
-            console.log(`get Message${msg}`)
-            console.log(`Info ${info}`)
+            console.log(msg)
+            console.log(info)
         })
 
         //udp监听器准备好时提醒
@@ -77,14 +117,15 @@ class DHT {
 
 }
 
-
-/**
- * @description 
- * Routing Table 用来存放node信息
- * @class Rtable
- */
-class Rtable {
-    constructor() {
-
-    }
+function getNeighborId(target, nid) {
+    return Buffer.concat([target.slice(0, 15), nid.slice(15)])
 }
+
+//生成随机nid
+function randomId() {
+    return crypto.createHash('sha1').update(crypto.randomBytes(20)).digest();
+}
+
+
+
+(new DHT(6881)).start()
